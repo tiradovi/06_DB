@@ -179,5 +179,37 @@ FROM employees;
 SELECT distinct dept_id
 FROM employees;
 
+# error code 1046 : 어떤 DB를 사용할 것인지 지정 하지 않아 생기는 문제
+-- employees 테이블에서 존재하는 position_id 코드의 종류 중복없이 조회
+SELECT distinct position_id
+FROM employees;
 
+/************************************
+              WHERE 절
+테이블에서 조건을 충족하는 행을 조회할 때 사용
+WHERE 절에는 조건식(true/false)만 작성
+
+
+비교 연산자 : >, <, <=, >=, =, !=, <>
+논리 연산자 : AND, OR, NOT 
+***********************************/
+-- employees 테이블에서 급여가 300만원 초과하는 사원의 
+-- 사번, 이름, 급여, 부서코드 조회
+SELECT emp_id, full_name, salary,dept_id
+FROM employees
+WHERE salary >3000000;
+
+-- employees 테이블에서 연봉이 5천만원 이상인 사원의 사번 이름 연봉 조회
+SELECT emp_id as `사번` , full_name as `이름`,  ceil(salary*12) as `연봉`
+FROM employees
+WHERE (salary*12) >= 5000000;
+
+-- employees 테이블에서 부서코드가 2번이 아닌 사원의 이름 부서코드 전화번호 조회
+SELECT dept_id as `부서코드`, full_name as `이름`,  phone as `전화번호`
+FROM employees
+WHERE dept_id!=2;
+
+/* 연결 연산자 CONCAT() */
+SELECT CONCAT(emp_id, full_name) as 사번이름연결
+from employees;
 
