@@ -17,12 +17,13 @@ FROM DEPARTMENT;
 -- 문제 4
 -- STUDENT 테이블에서 모든 학생의 이름, 입학일, 입학일로부터 현재까지의 일수를 조회하시오.
 -- (컬럼명은 각각 '학생이름', '입학일', '재학일수'로 별칭 지정)
-SELECT STUDENT_NAME as '학생이름', ENTRANCE_DATE as '입학일', datediff(curdate(), ENTRANCE_DATE) as '재학일수'
+SELECT STUDENT_NAME as '학생이름', ENTRANCE_DATE as '입학일', datediff(NOW(), ENTRANCE_DATE) as '재학일수'
 FROM student;
 
 -- 문제 5
 -- 현재 시간과 어제, 내일을 조회하시오.
 -- (컬럼명은 각각 '현재시간', '어제', '내일'로 별칭 지정)
+-- 가상테이블 : DUAL : DUmmy tAbLe
 SELECT NOW() as '현재시간', NOW()-interval 1 DAY as '어제',NOW()+interval 1 DAY as '내일';
 
 -- 문제 6
@@ -61,7 +62,7 @@ WHERE CAPACITY >=25;
 -- 이름, 학과번호, 주소를 조회하시오.
 SELECT  STUDENT_NAME,DEPARTMENT_NO,STUDENT_ADDRESS
 FROM student
-Where DEPARTMENT_NO !='001';
+Where DEPARTMENT_NO !=001;
 
 -- 문제 12
 -- GRADE 테이블에서 성적(POINT)이 4.0 이상인 성적 데이터의 
@@ -83,7 +84,7 @@ Where ENTRANCE_DATE LIKE '2005%';
 -- 교수번호, 이름, 학과번호를 조회하시오.
 SELECT PROFESSOR_NO, PROFESSOR_NAME, DEPARTMENT_NO
 FROM PROFESSOR
-WHERE DEPARTMENT_NO is not null;
+WHERE DEPARTMENT_NO IS NOT NULL;
 
 -- 문제 15
 -- CLASS 테이블에서 과목유형(CLASS_TYPE)이 '전공필수'인 과목의 
@@ -104,7 +105,7 @@ WHERE STUDENT_ADDRESS LIKE '서울시%';
 -- 학번, 과목번호, 성적을 조회하시오.
 SELECT STUDENT_NO, CLASS_NO, POINT
 FROM GRADE
-WHERE POINT >= 3.0 and POINT <4.0;
+WHERE POINT >= 3.0 or POINT <4.0;
 
 -- 문제 18
 -- STUDENT 테이블에서 지도교수번호(COACH_PROFESSOR_NO)가 'P001'인 학생의 
