@@ -279,6 +279,24 @@ SELECT emp_id, full_name, date_of_birth
 FROM employees
 WHERE date_of_birth BETWEEN  '1980-01-01' AND '1989-12-31';
 
+-- EMPLOYEES 테이블에서
+-- 부서 id 가 4인 사원 중
+-- 급여가 4000만 이상, 7000만 이하인 사원의 사번, 이름 급여 조회
+SELECT emp_id , full_name, ceil(salary) ,dept_id
+FROM employees
+WHERE (salary BETWEEN 40000000 AND 70000000)
+AND dept_id =4;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
