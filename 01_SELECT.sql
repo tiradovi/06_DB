@@ -285,7 +285,7 @@ WHERE date_of_birth BETWEEN  '1980-01-01' AND '1989-12-31';
 SELECT emp_id , full_name, ceil(salary) ,dept_id
 FROM employees
 WHERE (salary BETWEEN 40000000 AND 70000000)
-AND dept_id =4;
+AND dept_id =4; 
 
 
 
