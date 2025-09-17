@@ -158,10 +158,14 @@ SELECT COUNT(distinct(D.dept_code))
 FROM employees E
 JOIN departments D ON E.dept_id= D.dept_id;
 
+SELECT COUNT(distinct(D.dept_code))
+FROM employees E,departments D
+WHERE E.dept_id= D.dept_id;
 
-
-
-
+-- EMPLOYEES 테이블에 존재하는 남자 사원의 수
+SELECT COUNT(*)
+FROM employees 
+WHERE gender ='M';
 
 
 
