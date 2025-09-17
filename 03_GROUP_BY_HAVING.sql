@@ -35,7 +35,7 @@ WHERE dept_id IN(4,5)
 GROUP BY dept_id;
 
 -- employees 테이블에서 
--- 직급별 2020 년도 이후 입사자들의 급여 함
+-- 직급별 2020 년도 이후 입사자들의 급여 합
 SELECT position_id, SUM(salary) as `급여 합계`
 FROM employees
 WHERE YEAR(hire_date) >=2020
@@ -50,13 +50,33 @@ SELECT 절에 명시한 조회하려는 컬럼 중
 
 */
 
+/*
+ Error Code: 1055. 
+ Expression #1 of ORDER BY clause is not in GROUP BY clause and contains 
+ nonaggregated column 'employee_management.employees.dept_id' which is not functionally dependent 
+ on columns in GROUP BY clause; 
+ this is incompatible with sql_mode=only_full_group_by	0.000 sec
+*/
+
+-- employees 테이블에서 부서 별로 같은 직급인 사원의 급여 합계
+SELECT position_id, SUM(salary) as `급여 합계`
+FROM employees
+group by position_id
+ORDER BY dept_id;
+
+-- employees 테이블에서 부서 별로 같은 직급인 사원의 수
+SELECT position_id, dept_id, COUNT(*)
+FROM employees
+group by  dept_id,position_id
+ORDER BY dept_id, position_id;
 
 
-
-
-
-
-
+-- 부서별 평균 급여 조회
+-- 부서 ID별 오름차순
+SELECT dept_id, AVG(salary) as `급여 평균`
+FROM employees
+group by dept_id
+ORDER BY dept_id;
 
 
 
