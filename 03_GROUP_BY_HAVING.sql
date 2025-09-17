@@ -65,12 +65,17 @@ group by position_id
 ORDER BY dept_id;
 
 -- employees 테이블에서 부서 별로 같은 직급인 사원의 수
-SELECT position_id, dept_id, COUNT(*)
+SELECT  dept_id,position_id, COUNT(*)
 FROM employees
 group by  dept_id,position_id
 ORDER BY dept_id, position_id;
-
-
+/*
+group by dept_id, position_id 를 기준으로 데이터를 묶는다.
+부서 10, 직위 1
+부서 10, 직위 2
+부서 20, 직위 1
+이 있는 경우 각 조합마다 COUNT(*)로 몇명의 직원이 존재하는지 계산하겠다.
+*/
 -- 부서별 평균 급여 조회
 -- 부서 ID별 오름차순
 SELECT dept_id, AVG(salary) as `급여 평균`
