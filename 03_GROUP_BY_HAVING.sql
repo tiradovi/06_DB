@@ -14,15 +14,20 @@ SELECT dept_id, COUNT(*)
 FROM employees
 GROUP BY dept_id;
 
--- employees 테이블에서 부서별로 보너스를 받는(급여가 60000000이상인 사원) 사원 수 조회
+-- employees 테이블에서 부서별로 
+-- 보너스를 받는(급여가 60000000이상인 사원) 사원 수 조회
 SELECT dept_id, COUNT(*)
 FROM employees
 WHERE salary >= 60000000
 GROUP BY dept_id;
 
 -- employees 테이블에서 
--- 부서ID, 부서별 급여 합계 as 급여 합계, 부서별 급여 평균(정수) as 급여 평균, 인원수 조회 as 인원수
-SELECT dept_id, SUM(salary) as `급여 합계`, FLOOR(AVG(salary))as `급여 평균`, COUNT(*) as `인원수`
+-- 부서ID, 부서별 급여 합계 as 급여 합계, 
+-- 부서별 급여 평균(정수) as 급여 평균, 인원수 조회 as 인원수
+SELECT dept_id, 
+       SUM(salary) as `급여 합계`, 
+       FLOOR(AVG(salary))as `급여 평균`, 
+       COUNT(*) as `인원수`
 FROM employees
 GROUP BY dept_id
 ORDER BY dept_id;
