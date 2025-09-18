@@ -6,7 +6,14 @@ USE chun_university;
 -- WHERE 절에 LENGTH(STUDENT_NAME) = 3 조건 추가
 SELECT STUDENT_NO AS `학번` , STUDENT_NAME AS `이름`
 FROM student
-WHERE CHAR_length(STUDENT_NAME) = 3;
+WHERE CHAR_length(STUDENT_NAME) = 3; -- 한글이므로 3byte * 3 = 9byte
+
+/****************
+영어와 숫자 : 한 글자당 1byte
+특수 문자나 비영어 문자 : 한 글자당 2 ~ 4 byte
+한글, 일본, 중국어와 같은 문자: 한 글자 당 3 byte
+이모지 : 4byte
+****************/
 
 -- Q2. 문제: STUDENT 테이블에서 주민등록번호 앞 6자리를 생년월일로 하여
 -- 학번, 이름, 생년월일을 조회하시오. (별칭: 생년월일)
