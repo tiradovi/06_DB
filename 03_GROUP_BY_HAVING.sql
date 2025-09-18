@@ -88,5 +88,64 @@ FROM employees
 group by dept_id
 ORDER BY dept_id;
 
+/***************************************
+WHERE : 지정된 테이블에서 어떤 행만을 조회 결과로 삼을 건지 조건 지정
+	    (테이블 내에 특정 행만 뽑아서 사용 조건문)
+
+HAVING : 그룹함수로 구해 올 그룹에 대한 조건을 설정할 때 사용
+         (그룹에 대한 조건, 특정 그룹 조회 조건문)
+
+HAVING 컬럼명 | 함수식 비교연산자 비교값
+*****************************************/
+USE employee_management;
+
+SELECT * FROM departments;
+
+-- 직원이 2명 이상인 부서
+SELECT dept_id, COUNT(*)
+FROM employees
+WHERE COUNT(*) >= 2; -- Error Code: 1111. Invalid use of group function	0.000 sec
+-- 그룹함수 잘못 사용시 나타나는 문제
+
+SELECT dept_id, COUNT(*)
+FROM employees
+GROUP BY dept_id
+HAVING COUNT(*) >=2; -- dept_id 로 묶은 그룹에서 총인원이 2명 이상인 부서 아이디만 조회
+
+/*
+WHERE : 개별 직원 조건
+급여가 5000만원 이상인 "직원" 조회
+WHERE salary >=50000000
+
+HAVING : 부서나 그룹 조건
+평균 급여가 5000만원 이상인 "부서" 조회
+HAVING AVG(salary) >= 50000000
+
+GROUP BY HAVING = 함수(COUNT, AVG, SUM 등) 특정 그룹의 숫자 데이터를 활용해서 조건별로 조회시 사용
+*/
+
+-- 평균 급여가 70000000 이상인 부서조회
+SELECT dept_id, FLOOR(AVG(salary))
+FROM employees
+GROUP BY dept_id
+HAVING AVG(salary) >= 70000000;
+
+-- 급여 총합이 150000000 이상인 부서조회
+SELECT dept_id, FLOOR(SUM(salary))
+FROM employees
+GROUP BY dept_id
+HAVING SUM(salary) >= 150000000;
+
+-- employees , departments 연결 
+-- 평균 급여가 80000000 이상인 부서의 이름
+SELECT D.dept_name, AVG(E.salary)
+FROM employees E, departments D
+WHERE E.dept_id= D.dept_id
+GROUP BY D.dept_name
+HAVING AVG(E.salary)>=80000000;
+
+-- 
+
+
 
 
