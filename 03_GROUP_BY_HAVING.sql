@@ -144,8 +144,46 @@ WHERE E.dept_id= D.dept_id
 GROUP BY D.dept_name
 HAVING AVG(E.salary)>=80000000;
 
--- 
+/*****************************
+수업용_SCRIPT_2를 활용하여 GROUP BY HAVING실습하기
+기본 문법 순서
+SELECT 컬럼명, 집계함수()
+FROM 테이블명
+WHERE 조건      -- 개별행에 대한 조건
+GROUP BY 컬럼명 -- 그룹 만들기(SELCET, ORDER에서 집계함수가 아닌 명칭 작성)
+HAVING 집계조건 -- 조회할 그룹에 대한 조건
+ORDER BY        -- 정렬 기준
 
+* 주의점 : 숫자 값에 NULL 존재시 WHERE로 NULL 필터링 필요
+ WHERE 컬럼이름 IS NOT NULL
+-------------------------------------------
+집계함수
+COUNT(*) : 개수 세기
+SUM() : 합계
+AVG() : 평균
+MAX() : 최고값
+MIN() : 최저값
 
+테이블 구조
+stores(가게 테이블)
+가게번호, 가게명, 카테고리, 평점, 배달비
+id      , name  , category, rating, delivery_fee
 
+menus(메뉴 테이블)
+메뉴번호, 가게번호, 메뉴명, 가격, 인기메뉴여부
+id      , store_id, name  , price, is_popular
+*****************************/
+
+-- 카테고리별로 가게가 몇개인지
+SELECT category, COUNT(*) AS `가게수`
+FROM stores
+GROUP BY category
+ORDER BY `가게수` DESC;
+
+-- 각 카테고리별 평균 배달비 구하기
+-- null 확인후 아닌 것만 배달비 조회
+SELECT category, AVG(delivery_fee) AS `평균 배달비`
+FROM stores
+WHERE delivery_fee IS NOT NULL
+GROUP BY category;
 
