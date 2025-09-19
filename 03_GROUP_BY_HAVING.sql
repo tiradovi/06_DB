@@ -187,3 +187,74 @@ FROM stores
 WHERE delivery_fee IS NOT NULL
 GROUP BY category;
 
+
+
+# 실습문제
+-- from stores
+-- 평점이 4.5 이상인 가게들만 골라서 카테고리별 개수 구하기
+-- 치킨 카테고리에서 가게별로 4.5 이상인 가게들만 조회하기
+SELECT  category,  COUNT(*)
+FROM stores
+WHERE rating >= 4.5 
+GROUP BY category;
+
+
+-- 카테고리별로 평점을 모은 후에 
+-- 평점이 4.5 이상으로 그룹만 카테고리 조회
+SELECT  category,  COUNT(*)
+FROM stores
+GROUP BY category
+HAVING AVG(rating) >= 4.5;
+ 
+/*
+1164 select 문에서 , 다음에 특정 컬럼명칭 지정안해줬을 때 발생하는 에러
+0	47	14:37:36	SELECT name, category, rating, 
+ FROM stores
+ WHERE rating >= 4.5
+ GROUP BY category, rating,name	Error Code: 1064. You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'FROM stores
+ WHERE rating >= 4.5
+ GROUP BY category, rating,name' at line 2	0.000 sec
+
+*/
+
+-- 배달비가 null 이 아닌 가게들만으로 카테고리별 평균 평점 구하기, 
+select category,  round(avg(rating), 2)
+from stores
+where delivery_fee is not null
+group by category;
+
+
+-- 가게가 3개 이상인 카테고리만 보기
+-- 개수를 내림차순 정렬
+SELECT category, count(*)
+FROM stores
+GROUP BY category
+HAVING count(*) >= 3
+ORDER BY count(*) desc;
+
+
+
+-- 평균 배달비가 3000원 이상인 카테고리 구하기
+SELECT category,  round(avg(delivery_fee))
+FROM stores
+WHERE  delivery_fee IS NOT NULL
+GROUP BY  category
+HAVING avg(delivery_fee) >= 3000
+ORDER BY avg(delivery_fee);
+
+
+select * from stores;
+
+SELECT menus.id, menus.store_id, menus.name, menus.description, menus.price, menus.is_popular
+FROM menus;
+
+-- 가게별로 메뉴가 몇 개씩 존재하는지 조회
+-- 가게명, 카테고리 메뉴 개수 조회
+SELECT menus.id, menus.store_id, menus.name, menus.description, menus.price, menus.is_popular
+FROM menus, stores
+where menus.store_id = stores.id;
+
+SELECT  count(*)
+FROM menus, stores
+where menus.store_id = stores.id
+group by stores.category;
