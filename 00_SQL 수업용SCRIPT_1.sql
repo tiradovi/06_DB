@@ -1,131 +1,341 @@
-CREATE DATABASE IF NOT EXISTS chun_university;
+/*
+실행방법 3가지
+1. 한 줄 실행                : CTRL + ENTER
+2. 모든 줄 전체 실행           : CTL + ALL -> CTRL + SHIFT + ENTER
+3. 파일로 저장 후 sql 실행     : CTRL + S -> CTRL + SHIFT + ENTER
 
-USE chun_university;
+줄 전체 주석 단축키 : ctrl + /
+ 
+여러 줄 주석 방법
 
--- 학과 테이블
-CREATE TABLE DEPARTMENT (
-    DEPARTMENT_NO VARCHAR(10) PRIMARY KEY,
-    DEPARTMENT_NAME VARCHAR(255) NOT NULL,
-    CATEGORY VARCHAR(255),
-    OPEN_YN CHAR(1),
-    CAPACITY INT
+한 줄 주석 2가지 방법
+1. # 한 줄 주석
+2. -- 한 줄 주석 
+
+sql이 문제 없이 잘 동작하는지 확인하는 방법
+대표적으로 
+SELECT VERSION(); 컨트롤 + enter 로 버전이 나온다면 잘 동작하는 것 
+*/
+SELECT VERSION();
+/*
+CREATE DATABASE: 데이터 베이스 생성
+IF NOT EXISTS 00000; : 00000라는 명칭의 데이터베이스가 없다면
+한 줄 작성 후 : ;(세미콜론) 반드시 붙이기 
+*/
+CREATE DATABASE IF NOT EXISTS employee_management;
+
+-- USE 00000: 개발자나 관리자가 사용할 데이터베이스 명칭 선택하여 사용
+-- 이후 실행될 모든 SQL 명령어는 00000 데이터베이스에서 동작하고 작동하도록 설정
+-- 보통 PM이나 팀장급 정도의 사람만 주로 사용
+USE employee_management;
+
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY AUTO_INCREMENT,
+    dept_name VARCHAR(100) NOT NULL UNIQUE,
+    dept_code VARCHAR(10) NOT NULL UNIQUE,
+    description TEXT,
+    location VARCHAR(200),
+    budget DECIMAL(15,2),
+    manager_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
 );
 
--- 학생 테이블
-CREATE TABLE STUDENT (
-    STUDENT_NO VARCHAR(10) PRIMARY KEY,
-    DEPARTMENT_NO VARCHAR(10),
-    STUDENT_NAME VARCHAR(255) NOT NULL,
-    STUDENT_SSN VARCHAR(14),
-    STUDENT_ADDRESS VARCHAR(255),
-    ENTRANCE_DATE DATE,
-    ABSENCE_YN CHAR(1) DEFAULT 'N',
-    COACH_PROFESSOR_NO VARCHAR(10),
-    FOREIGN KEY (DEPARTMENT_NO) REFERENCES DEPARTMENT(DEPARTMENT_NO)
+CREATE TABLE positions (
+    position_id INT PRIMARY KEY AUTO_INCREMENT,
+    position_name VARCHAR(100) NOT NULL UNIQUE,
+    position_level INT NOT NULL,
+    min_salary DECIMAL(12,2),
+    max_salary DECIMAL(12,2),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
 );
 
--- 교수 테이블
-CREATE TABLE PROFESSOR (
-    PROFESSOR_NO VARCHAR(10) PRIMARY KEY,
-    PROFESSOR_NAME VARCHAR(255) NOT NULL,
-    PROFESSOR_SSN VARCHAR(14),
-    PROFESSOR_ADDRESS VARCHAR(255),
-    DEPARTMENT_NO VARCHAR(10),
-    FOREIGN KEY (DEPARTMENT_NO) REFERENCES DEPARTMENT(DEPARTMENT_NO)
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_code VARCHAR(20) NOT NULL UNIQUE,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    full_name VARCHAR(100) GENERATED ALWAYS AS (CONCAT(first_name, ' ', last_name)) STORED,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(20),
+    mobile VARCHAR(20),
+    date_of_birth DATE,
+    gender ENUM('M', 'F', 'Other'),
+    marital_status ENUM('Single', 'Married', 'Divorced', 'Widowed'),
+    nationality VARCHAR(50),
+    address TEXT,
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(20),
+    country VARCHAR(100) DEFAULT 'South Korea',
+    emergency_contact_name VARCHAR(100),
+    emergency_contact_phone VARCHAR(20),
+    hire_date DATE NOT NULL,
+    termination_date DATE,
+    dept_id INT,
+    position_id INT,
+    manager_id INT,
+    salary DECIMAL(12,2),
+    employment_status ENUM('Active', 'Inactive', 'Terminated', 'On Leave') DEFAULT 'Active',
+    employment_type ENUM('Full-time', 'Part-time', 'Contract', 'Intern') DEFAULT 'Full-time',
+    profile_image VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id) ON DELETE SET NULL,
+    FOREIGN KEY (position_id) REFERENCES positions(position_id) ON DELETE SET NULL,
+    FOREIGN KEY (manager_id) REFERENCES employees(emp_id) ON DELETE SET NULL,
+    
+    INDEX idx_emp_dept (dept_id),
+    INDEX idx_emp_position (position_id),
+    INDEX idx_emp_manager (manager_id),
+    INDEX idx_emp_status (employment_status),
+    INDEX idx_emp_email (email),
+    INDEX idx_hire_date (hire_date)
 );
 
--- 과목 테이블
-CREATE TABLE CLASS (
-    CLASS_NO VARCHAR(10) PRIMARY KEY,
-    DEPARTMENT_NO VARCHAR(10),
-    PREATTENDING_CLASS_NO VARCHAR(10),
-    CLASS_NAME VARCHAR(255) NOT NULL,
-    CLASS_TYPE VARCHAR(50),
-    FOREIGN KEY (DEPARTMENT_NO) REFERENCES DEPARTMENT(DEPARTMENT_NO)
+CREATE TABLE salary_history (
+    history_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    old_salary DECIMAL(12,2),
+    new_salary DECIMAL(12,2) NOT NULL,
+    change_reason VARCHAR(255),
+    effective_date DATE NOT NULL,
+    approved_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    FOREIGN KEY (approved_by) REFERENCES employees(emp_id) ON DELETE SET NULL,
+    
+    INDEX idx_salary_emp (emp_id),
+    INDEX idx_salary_date (effective_date)
 );
 
--- 성적 테이블
-CREATE TABLE GRADE (
-    TERM_NO VARCHAR(10),
-    CLASS_NO VARCHAR(10),
-    STUDENT_NO VARCHAR(10),
-    POINT DECIMAL(3, 2),
-    PRIMARY KEY (TERM_NO, CLASS_NO, STUDENT_NO),
-    FOREIGN KEY (CLASS_NO) REFERENCES CLASS(CLASS_NO),
-    FOREIGN KEY (STUDENT_NO) REFERENCES STUDENT(STUDENT_NO)
+CREATE TABLE department_history (
+    history_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    old_dept_id INT,
+    new_dept_id INT,
+    transfer_date DATE NOT NULL,
+    transfer_reason VARCHAR(255),
+    approved_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    FOREIGN KEY (old_dept_id) REFERENCES departments(dept_id) ON DELETE SET NULL,
+    FOREIGN KEY (new_dept_id) REFERENCES departments(dept_id) ON DELETE SET NULL,
+    FOREIGN KEY (approved_by) REFERENCES employees(emp_id) ON DELETE SET NULL,
+    
+    INDEX idx_dept_history_emp (emp_id),
+    INDEX idx_dept_history_date (transfer_date)
 );
 
--- 과목-교수 테이블
-CREATE TABLE CLASS_PROFESSOR (
-    CLASS_NO VARCHAR(10),
-    PROFESSOR_NO VARCHAR(10),
-    PRIMARY KEY (CLASS_NO, PROFESSOR_NO),
-    FOREIGN KEY (CLASS_NO) REFERENCES CLASS(CLASS_NO),
-    FOREIGN KEY (PROFESSOR_NO) REFERENCES PROFESSOR(PROFESSOR_NO)
+CREATE TABLE position_history (
+    history_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    old_position_id INT,
+    new_position_id INT,
+    promotion_date DATE NOT NULL,
+    promotion_reason VARCHAR(255),
+    approved_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    FOREIGN KEY (old_position_id) REFERENCES positions(position_id) ON DELETE SET NULL,
+    FOREIGN KEY (new_position_id) REFERENCES positions(position_id) ON DELETE SET NULL,
+    FOREIGN KEY (approved_by) REFERENCES employees(emp_id) ON DELETE SET NULL,
+    
+    INDEX idx_position_history_emp (emp_id),
+    INDEX idx_position_history_date (promotion_date)
 );
 
--- DEPARTMENT (학과)
-INSERT INTO DEPARTMENT VALUES ('001', '국어국문학과', '인문사회', 'Y', 25);
-INSERT INTO DEPARTMENT VALUES ('002', '영어영문학과', '인문사회', 'Y', 30);
-INSERT INTO DEPARTMENT VALUES ('003', '법학과', '사회과학', 'Y', 40);
-INSERT INTO DEPARTMENT VALUES ('004', '음악학과', '예체능', 'Y', 20);
-INSERT INTO DEPARTMENT VALUES ('005', '환경조경학과', '자연과학', 'Y', 28);
-INSERT INTO DEPARTMENT VALUES ('006', '서반아어학과', '인문사회', 'Y', 22);
+CREATE TABLE attendance (
+    attendance_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    work_date DATE NOT NULL,
+    check_in_time TIME,
+    check_out_time TIME,
+    break_start_time TIME,
+    break_end_time TIME,
+    total_hours DECIMAL(4,2),
+    overtime_hours DECIMAL(4,2) DEFAULT 0,
+    status ENUM('Present', 'Absent', 'Late', 'Half Day', 'Holiday', 'Sick Leave', 'Personal Leave') DEFAULT 'Present',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_emp_date (emp_id, work_date),
+    
+    INDEX idx_attendance_emp (emp_id),
+    INDEX idx_attendance_date (work_date),
+    INDEX idx_attendance_status (status)
+);
 
--- PROFESSOR (교수)
-INSERT INTO PROFESSOR VALUES ('P001', '김교수', '680404-1122334', '서울시 강남구', '001');
-INSERT INTO PROFESSOR VALUES ('P002', '이교수', '720815-1234567', '경기도 수원시', '002');
-INSERT INTO PROFESSOR VALUES ('P003', '박총장', '650320-1987654', '서울시 종로구', NULL);
-INSERT INTO PROFESSOR VALUES ('P004', '최교수', '801130-2456789', '강원도 춘천시', '003');
-INSERT INTO PROFESSOR VALUES ('P005', '정교수', '750505-1357913', '경기도 고양시', '003');
-INSERT INTO PROFESSOR VALUES ('P006', '황보석', '740909-1234567', '서울시 서초구', '006');
+CREATE TABLE leaves (
+    leave_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    leave_type ENUM('Annual', 'Sick', 'Maternity', 'Paternity', 'Personal', 'Emergency', 'Unpaid') NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    days_count INT NOT NULL,
+    reason TEXT,
+    status ENUM('Pending', 'Approved', 'Rejected', 'Cancelled') DEFAULT 'Pending',
+    applied_date DATE DEFAULT (CURRENT_DATE),
+    approved_by INT,
+    approved_date DATE,
+    rejection_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    FOREIGN KEY (approved_by) REFERENCES employees(emp_id) ON DELETE SET NULL,
+    
+    INDEX idx_leaves_emp (emp_id),
+    INDEX idx_leaves_date (start_date, end_date),
+    INDEX idx_leaves_status (status)
+);
 
--- STUDENT (학생)
-INSERT INTO STUDENT VALUES ('A112113', '001', '김고운', '820101-2345678', '서울시 동작구', '2001-03-02', 'N', 'P001');
-INSERT INTO STUDENT VALUES ('A313047', '006', '박수진', '840515-2121212', '경기도 부천시', '2003-03-01', 'N', 'P006');
-INSERT INTO STUDENT VALUES ('A513079', '002', '이은주', '861002-2233445', '전주시 완산구', '2005-03-02', 'N', 'P002');
-INSERT INTO STUDENT VALUES ('A513090', '004', '김음학', '861111-1111111', '서울시 강남구', '2005-03-02', 'N', NULL);
-INSERT INTO STUDENT VALUES ('A513091', '005', '박환경', '861212-2222222', '경기도 안양시', '2005-03-02', 'Y', NULL);
-INSERT INTO STUDENT VALUES ('A513110', '001', '최국문', '860101-1313131', '서울시 영등포구', '2005-03-02', 'N', 'P001');
-INSERT INTO STUDENT VALUES ('A513119', '003', '이법학', '850202-1414141', '경기도 과천시', '2005-03-02', 'N', 'P004');
-INSERT INTO STUDENT VALUES ('A517178', '005', '한아름', '860303-2525252', '강원도 원주시', '2005-03-02', 'N', NULL);
-INSERT INTO STUDENT VALUES ('9912345', '003', '구시대', '800808-1678901', '강원도 강릉시', '1999-03-02', 'N', 'P005');
-INSERT INTO STUDENT VALUES ('A002001', '001', '여학생', '810909-2123456', '전주시 덕진구', '2000-03-02', 'Y', 'P001');
-INSERT INTO STUDENT VALUES ('A212345', '002', '신입생', '020303-3456789', '서울시 중구', '2022-03-02', 'N', 'P002');
-INSERT INTO STUDENT VALUES ('A223456', '002', '김영어', '020404-4567890', '서울시 마포구', '2022-03-02', 'N', 'P002');
-INSERT INTO STUDENT VALUES ('2002123', '001', '전주만', '830303-1234567', '전주시 덕진구', '2002-03-02', 'N', 'P001');
-INSERT INTO STUDENT VALUES ('A313048', '006', '김서반', '840616-1122334', '서울시 강북구', '2003-03-01', 'N', 'P006');
-INSERT INTO STUDENT VALUES ('A414141', '004', '최경희', '850717-2345678', '서울시 성북구', '2004-03-02', 'N', NULL);
+CREATE TABLE leave_balance (
+    balance_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    year YEAR NOT NULL,
+    leave_type ENUM('Annual', 'Sick', 'Personal') NOT NULL,
+    allocated_days INT DEFAULT 0,
+    used_days INT DEFAULT 0,
+    remaining_days INT GENERATED ALWAYS AS (allocated_days - used_days) STORED,
+    carry_forward_days INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_emp_year_type (emp_id, year, leave_type),
+    
+    INDEX idx_balance_emp (emp_id),
+    INDEX idx_balance_year (year)
+);
 
--- CLASS (과목)
-INSERT INTO CLASS VALUES ('C2123400', '001', NULL, '현대문학', '전공필수');
-INSERT INTO CLASS VALUES ('C3118100', '003', NULL, '형법', '전공선택');
-INSERT INTO CLASS VALUES ('C4455600', '004', NULL, '클래식의이해', '교양');
-INSERT INTO CLASS VALUES ('C5123400', '005', 'C4455600', '도시생태학', '전공필수');
-INSERT INTO CLASS VALUES ('C1234500', '006', NULL, '기초서반아어', '전공필수');
-INSERT INTO CLASS VALUES ('C7891200', '002', NULL, '영미문학개론', '전공선택');
-INSERT INTO CLASS VALUES ('C9876500', '003', NULL, '인간관계론', '교양');
-INSERT INTO CLASS VALUES ('D1234500', '005', NULL, '조경사', '전공선택');
+CREATE TABLE performance_reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    review_period_start DATE NOT NULL,
+    review_period_end DATE NOT NULL,
+    reviewer_id INT NOT NULL,
+    overall_rating ENUM('Excellent', 'Very Good', 'Good', 'Satisfactory', 'Needs Improvement') NOT NULL,
+    goals_achievement DECIMAL(3,1),
+    technical_skills DECIMAL(3,1),
+    communication_skills DECIMAL(3,1),
+    teamwork DECIMAL(3,1),
+    leadership DECIMAL(3,1),
+    punctuality DECIMAL(3,1),
+    strengths TEXT,
+    areas_for_improvement TEXT,
+    goals_next_period TEXT,
+    comments TEXT,
+    review_date DATE DEFAULT (CURRENT_DATE),
+    status ENUM('Draft', 'Completed', 'Reviewed', 'Approved') DEFAULT 'Draft',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewer_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    
+    INDEX idx_reviews_emp (emp_id),
+    INDEX idx_reviews_reviewer (reviewer_id),
+    INDEX idx_reviews_period (review_period_start, review_period_end)
+);
 
--- GRADE (성적)
-INSERT INTO GRADE VALUES ('200501', 'C2123400', 'A513110', 3.5);
-INSERT INTO GRADE VALUES ('200501', 'C3118100', 'A513119', 4.0);
-INSERT INTO GRADE VALUES ('200402', 'C3118100', 'A513119', 3.0);
-INSERT INTO GRADE VALUES ('200501', 'C4455600', 'A513090', 2.5);
-INSERT INTO GRADE VALUES ('200502', 'C5123400', 'A517178', 4.5);
-INSERT INTO GRADE VALUES ('200502', 'C5123400', 'A513091', 3.8);
-INSERT INTO GRADE VALUES ('200701', 'C9876500', 'A313047', 4.2);
-INSERT INTO GRADE VALUES ('200702', 'C9876500', 'A414141', 3.7);
-INSERT INTO GRADE VALUES ('202201', 'C7891200', 'A212345', 3.9);
-INSERT INTO GRADE VALUES ('200101', 'C2123400', 'A112113', 3.2);
-INSERT INTO GRADE VALUES ('200102', 'C2123400', 'A112113', 4.1);
-INSERT INTO GRADE VALUES ('200201', 'C2123400', 'A112113', 2.8);
-INSERT INTO GRADE VALUES ('200501', 'D1234500', 'A517178', 4.0);
+CREATE TABLE training_programs (
+    program_id INT PRIMARY KEY AUTO_INCREMENT,
+    program_name VARCHAR(200) NOT NULL,
+    description TEXT,
+    provider VARCHAR(100),
+    duration_hours INT,
+    cost DECIMAL(10,2),
+    certification BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- CLASS_PROFESSOR (과목-교수)
-INSERT INTO CLASS_PROFESSOR VALUES ('C2123400', 'P001');
-INSERT INTO CLASS_PROFESSOR VALUES ('C3118100', 'P004');
-INSERT INTO CLASS_PROFESSOR VALUES ('C4455600', 'P005');
-INSERT INTO CLASS_PROFESSOR VALUES ('C1234500', 'P006');
-INSERT INTO CLASS_PROFESSOR VALUES ('C7891200', 'P002');
-INSERT INTO CLASS_PROFESSOR VALUES ('C9876500', 'P003');
+CREATE TABLE employee_training (
+    training_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL,
+    program_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    completion_status ENUM('Enrolled', 'In Progress', 'Completed', 'Cancelled') DEFAULT 'Enrolled',
+    score DECIMAL(5,2),
+    certificate_issued BOOLEAN DEFAULT FALSE,
+    certificate_number VARCHAR(100),
+    cost DECIMAL(10,2),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+    FOREIGN KEY (program_id) REFERENCES training_programs(program_id) ON DELETE CASCADE,
+    
+    INDEX idx_emp_training_emp (emp_id),
+    INDEX idx_emp_training_program (program_id),
+    INDEX idx_emp_training_date (start_date)
+);
+
+ALTER TABLE departments 
+ADD CONSTRAINT fk_dept_manager 
+FOREIGN KEY (manager_id) REFERENCES employees(emp_id) ON DELETE SET NULL;
+
+INSERT INTO positions (position_name, position_level, min_salary, max_salary, description) VALUES
+('CEO', 1, 100000000, 200000000, '최고경영자'),
+('CTO', 2, 80000000, 120000000, '최고기술책임자'),
+('부장', 3, 70000000, 90000000, '부서 총괄 관리자'),
+('차장', 4, 60000000, 75000000, '팀 관리자'),
+('과장', 5, 50000000, 65000000, '프로젝트 관리자'),
+('대리', 6, 40000000, 55000000, '중급 개발자/관리자'),
+('주임', 7, 35000000, 45000000, '초급 관리자'),
+('사원', 8, 30000000, 40000000, '신입/일반 직원'),
+('인턴', 9, 20000000, 25000000, '인턴십');
+
+INSERT INTO departments (dept_name, dept_code, description, location, budget) VALUES
+('경영관리부', 'MGT', '회사 전반적인 경영 관리', '서울 본사 10층', 1000000000),
+('인사부', 'HR', '인적자원 관리 및 채용', '서울 본사 9층', 500000000),
+('재무부', 'FIN', '회계 및 재무 관리', '서울 본사 8층', 800000000),
+('개발부', 'DEV', '소프트웨어 개발 및 유지보수', '서울 본사 5-7층', 2000000000),
+('마케팅부', 'MKT', '마케팅 및 홍보', '서울 본사 4층', 1200000000),
+('영업부', 'SALES', '영업 및 고객 관리', '서울 본사 3층', 1500000000),
+('디자인부', 'DESIGN', 'UI/UX 및 그래픽 디자인', '서울 본사 2층', 600000000),
+('품질관리부', 'QA', '제품 품질 관리 및 테스팅', '서울 본사 6층', 400000000);
+
+INSERT INTO employees (emp_code, first_name, last_name, email, phone, date_of_birth, gender, hire_date, dept_id, position_id, salary, employment_type) VALUES
+('EMP001', '김', '대표', 'ceo@company.com', '02-1234-5678', '1975-03-15', 'M', '2020-01-01', 1, 1, 150000000, 'Full-time'),
+('EMP002', '이', '기술이사', 'cto@company.com', '02-1234-5679', '1980-07-22', 'M', '2020-02-01', 4, 2, 100000000, 'Full-time'),
+('EMP003', '박', '인사부장', 'hr.manager@company.com', '02-1234-5680', '1978-11-08', 'F', '2020-03-01', 2, 3, 80000000, 'Full-time'),
+('EMP004', '최', '개발팀장', 'dev.manager@company.com', '02-1234-5681', '1985-05-12', 'M', '2020-04-01', 4, 4, 70000000, 'Full-time'),
+('EMP005', '정', '마케팅부장', 'mkt.manager@company.com', '02-1234-5682', '1982-09-30', 'F', '2020-05-01', 5, 3, 75000000, 'Full-time');
+
+UPDATE departments SET manager_id = 1 WHERE dept_id = 1;
+UPDATE departments SET manager_id = 3 WHERE dept_id = 2;
+UPDATE departments SET manager_id = 4 WHERE dept_id = 4;
+UPDATE departments SET manager_id = 5 WHERE dept_id = 5;
+
+INSERT INTO training_programs (program_name, description, provider, duration_hours, cost, certification) VALUES
+('신입사원 오리엔테이션', '회사 소개 및 기본 교육', '사내', 16, 0, FALSE),
+('리더십 교육', '관리자급 리더십 역량 강화', '외부기관', 24, 500000, TRUE),
+('기술 교육 - Python', 'Python 프로그래밍 기초', '온라인', 40, 200000, TRUE),
+('영어 회화', '비즈니스 영어 회화', '어학원', 60, 800000, FALSE),
+('프로젝트 관리', 'PMP 자격증 취득 과정', 'PMI', 35, 1200000, TRUE);
+
+INSERT INTO leave_balance (emp_id, year, leave_type, allocated_days, used_days) VALUES
+(1, YEAR(CURDATE()), 'Annual', 25, 0),
+(1, YEAR(CURDATE()), 'Sick', 10, 0),
+(2, YEAR(CURDATE()), 'Annual', 25, 0),
+(2, YEAR(CURDATE()), 'Sick', 10, 0),
+(3, YEAR(CURDATE()), 'Annual', 25, 0),
+(3, YEAR(CURDATE()), 'Sick', 10, 0),
+(4, YEAR(CURDATE()), 'Annual', 25, 0),
+(4, YEAR(CURDATE()), 'Sick', 10, 0),
+(5, YEAR(CURDATE()), 'Annual', 25, 0),
+(5, YEAR(CURDATE()), 'Sick', 10, 0);
