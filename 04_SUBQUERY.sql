@@ -425,12 +425,58 @@ SELECT * FROM stores WHERE delivery_fee < ANY(SELECT delivery_fee FROM stores WH
 -- =============================================
 --  ALL 연산자 - 모든 조건을 만족해야 함
 -- =============================================
+-- 모든 치킨집보다 배달비가 저렴한 매장들
+-- 1단계 : 치킨집들의 배달비 확인
+SELECT delivery_fee FROM stores WHERE category='치킨'AND delivery_fee IS NOT NULL;
+-- 2단계 : 모든 치킨집 중 배달비가 가장 낮은 치킨집을 기준으로 하여 타 카테고리 매장 중
+-- 치킨 카테고리에서 최저 배달비 보다 낮은 매장들 검색
+SELECT * FROM stores WHERE delivery_fee < All(SELECT delivery_fee FROM stores WHERE category='치킨')  
+AND delivery_fee IS NOT NULL
+AND category NOT IN('치킨');
 
-
-
+-- JAVA에서는 DB에서 전달받은 데이터가 0개일 것이고, HTML로 0개를 전달
+-- HTML에서는 조회된 결과가 없음을 띄움
+-- DB에서 X가 아니라 빈공간이 나올경우 오류가 아닌 조회 결과가 없는 것
 -- =============================================
 --  EXISTS 연산자 - 존재하는 것을 찾기
+--  EXISTS = TRUE / FALSE 만 봄 , 존재 유무를 확인하므로 1과 같은 숫자값으로 빠르게 가져오도록 설정
+--  보통 TRUE = 1 FALSE = 0
+--  존재하면 1이라는 숫자가 몇 개 뜨는지만 조회할 때 사용
+--  EXISTS 사용법
+/*
+WHERE EXISTS(
+SELECT 1 
+FROM 다른테이블 별칭 
+WHERE 별칭.외래키 = 현재테이블별칭.기본키
+AND 추가조건...
+)
+
+*/
 -- =============================================
+-- 메뉴가 존재하는 매장들 찾기
+-- 1단계 : 각 매장별로 메뉴가 있는지 확인
+-- 예를 들어 매장 ID = 1 인 매장에 메뉴가 존재하는지 확인
+
+-- store_id=1인 데이터를 기준으로 모든 칼럼에 대한 결과를 가져옴
+SELECT * FROM menus WHERE store_id=1;
+
+-- SELECT 1은 내부의 컬럼 데이터가 궁금한 것이 아니라 데이터가 존재하는지 확인 유무
+-- 보통 TRUE = 1 FALSE = 0
+-- 즉 조회 개수를 세는 것 숫자는 상관없으나 보통 위를 따름 
+SELECT 1 FROM menus WHERE store_id=1;
+
+-- menus 에서 store_id가 id와 같은 경우 출력
+-- 모든 가게가 모든 메뉴를 가지고 있기 때문에 조회가 되나
+-- 가게만 오픈하고 메뉴가 존재하지 않는 경우 미출력
+SELECT name, category 
+FROM stores s
+WHERE EXISTS(SELECT 1 FROM menus m WHERE m.store_id =s.id);
+
+-- 설명이 있는 메뉴를 파는 매장을 찾기
+SELECT name, category 
+FROM  stores
+WHERE EXISTS(SELECT 1 FROM menus WHERE description is NOT NULL AND  stores.id = menus.store_id);
+
 
 -- =============================================
 --  NOT EXISTS 연산자 - 존재하지 않는 것을 찾기
