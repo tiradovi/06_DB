@@ -229,8 +229,6 @@ WHERE delivery_fee<(SELECT AVG(delivery_fee) FROM stores WHERE category='한식'
 -- 주요 연산자 : IN, NOT IN, ANY, ALL, EXISTS
 -- ===========================================
 
--- 1. IN 연산자 - 가장 많이 사용되는 다중행 서브쿼리
-
 -- 인기 메뉴가 있는 매장들 조회
 -- 1단계 : 인기 메뉴가 있는 매장 ID 들 확인
 SELECT distinct(store_id) FROM menus WHERE is_popular = TRUE;
@@ -239,8 +237,6 @@ SELECT distinct(store_id) FROM menus WHERE is_popular = TRUE;
 SELECT s.name, s.category, s.rating, s.id, m.store_id
 FROM stores s, menus m
 where s.id= m.store_id AND s.id IN(SELECT distinct(store_id) FROM menus WHERE is_popular = TRUE);
-
--- 2. NOT IN 연산자
 
 -- 인기 메뉴가 없는 매장 조회
 -- 1단계 : 인기 메뉴가 있는 매장 ID 들 확인 
@@ -269,8 +265,15 @@ ORDER BY name;
 
 /**********************************************************
            다중행 서브쿼리 실습문제 (1 ~ 10 문제)
-           IN / NOT IN 연산자
 ***********************************************************/
+-- =============================================
+-- IN 연산자 -  해당하는 내용을 포함할 때
+-- =============================================
+-- =============================================
+--  NOT IN 연산자 - 해당하는 내용을 제외할 때
+-- =============================================
+
+
 -- 문제 1: 카테고리별 최고 평점 매장들 조회
 -- 1단계: 카테고리별 최고 평점들 확인
 SELECT MAX(rating), category FROM stores GROUP BY category;
@@ -285,6 +288,15 @@ WHERE (category, rating) IN (SELECT category, MAX(rating) FROM stores GROUP BY c
 -- 문제 2: 배달비가 가장 저렴한 매장들의 인기 메뉴들 조회
 -- 1단계: 가장 저렴한 배달비 매장 ID들 확인
 SELECT MIN(delivery_fee) FROM stores;
+
+-- WHERE 의 특성 Error Code: 1111. Invalid use of group function
+-- WHERE 절에는 MIN(), MAX(), AVG() 같은 함수 직접 사용 불가
+-- WHERE 절은 테이블의 각 행을 하나씩 필터링 하는 단계
+-- MIN() 함수는 where 절의 필터링이 끝난 다음에 데이터를 그룹화해서 최소값을 계산하는 함수
+-- where 절이 실행되는 시점에는 아직 min(delivery_fee) 값을 알 수 없음
+SELECT id
+FROM stores
+WHERE delivery_fee = MIN(delivery_fee);
 
 SELECT id FROM stores WHERE delivery_fee =(SELECT MIN(delivery_fee) FROM stores);
 -- 2단계: 1단계 결과를 조합하여 해당 매장들의 인기 메뉴들 가져오기
@@ -335,7 +347,7 @@ AND  stores.id = menus.store_id;
 -- 1단계: 치킨 카테고리 매장 ID들 확인
 SELECT id FROM stores WHERE category='치킨';
 -- 2단계: 1단계 결과를 조합하여 해당 매장들의 메뉴들 가져오기
-SELECT menus.name
+SELECT stores.name, menus.name
 FROM  stores, menus
 WHERE stores.id IN(SELECT id FROM stores WHERE category='치킨')
 AND  stores.id = menus.store_id;
@@ -359,6 +371,7 @@ SELECT DISTINCT(stores.name)
 FROM  stores, menus
 WHERE stores.id IN(SELECT store_id FROM menus WHERE price >(SELECT AVG(price) FROM menus))
 AND  stores.id = menus.store_id;
+
 -- 문제 10: 가장 비싼 메뉴를 파는 매장들 조회
 -- 1단계: 가장 비싼 메뉴를 가진 매장 ID들 확인
 SELECT max(price) FROM menus;
@@ -370,13 +383,58 @@ FROM menus m
 JOIN stores s ON m.store_id = s.id
 WHERE m.price = (SELECT MAX(price) FROM menus);
 
--- 3. ANY 연산자 - IS NULL, IS NOT NULL
+
+-- =============================================
+-- ANY 연산자 - 하나라도 조건을 만족하면 참
+-- 여러 값 중 하나라도 만족하면 TRUE
+-- 치킨 카테고리에서 배달비가 어떤 기준보다 작으면 만족 어떤 기준보다 크면 만족 
+-- =============================================
+-- 치킨집 중 배댈비가 저렴한 매장들 확인
+-- 1단계 : 치킨집들의 배달비 확인
+SELECT delivery_fee
+FROM stores
+WHERE category ='치킨'
+AND delivery_fee IS NOT NULL;
+
+-- 2단계 : 배달비가 3000원 이하인 매장 조회
+SELECT *
+FROM stores
+WHERE delivery_fee <= 3000
+AND delivery_fee IS NOT NULL;
+
+-- 3단계 ANY 로 조합하여 치킨 카테고리에서 배달비 중 최저값보다 작은 매장을 만족하는 가게들의 이름, 카테고리 배달비 조회
+SELECT name, category, delivery_fee
+FROM stores
+WHERE delivery_fee < ANY(SELECT delivery_fee FROM stores
+WHERE category ='치킨' AND delivery_fee IS NOT NULL)
+AND delivery_fee IS NOT NULL
+ORDER BY delivery_fee;
+
+-- 한식집들 중 어떤 매장보다 평점이 높은 매장을 찾기
+SELECT rating FROM stores WHERE category='한식' AND rating IS NOT NULL;
+SELECT * FROM stores WHERE rating > 4.2 AND rating IS NOT NULL;
+SELECT * FROM stores WHERE rating > ANY(SELECT rating FROM stores WHERE category='한식') 
+AND rating IS NOT NULL
+AND category NOT IN ('한식');
+
+-- 일식집들의 어떤 매장보다 배달비가 낮은 매장을 찾기
+SELECT delivery_fee FROM stores WHERE category='일식'AND delivery_fee IS NOT NULL;
+SELECT * FROM stores WHERE delivery_fee < 4000 AND delivery_fee IS NOT NULL;
+SELECT * FROM stores WHERE delivery_fee < ANY(SELECT delivery_fee FROM stores WHERE category='일식')  AND delivery_fee IS NOT NULL;
+
+-- =============================================
+--  ALL 연산자 - 모든 조건을 만족해야 함
+-- =============================================
 
 
--- 4. ALL 연산자 -
 
--- 5. EXISTS 연산자 -
+-- =============================================
+--  EXISTS 연산자 - 존재하는 것을 찾기
+-- =============================================
 
+-- =============================================
+--  NOT EXISTS 연산자 - 존재하지 않는 것을 찾기
+-- =============================================
 
 
 -- ===========================================
