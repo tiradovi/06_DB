@@ -59,15 +59,44 @@ INSERT INTO member VALUES(NULL,'sarah_lee', 'passwordabc', 'sarah@example.com', 
 -- ,로 구분하여 여러 행을 한번에 입력 후 데이터를 저장할 수 있다.
 -- =======================================
 
+INSERT INTO member
+VALUES
+(NULL, 'mini1004',  'pass5678', 'mini1004@gmail.com', '김미니', '010-6666-7777', '2000-02-02', 'F', '서울시 강남구 역삼동', NOW(), 'ACTIVE'),               
+(NULL, 'soo5678',  'pass9999', 'soo1004@gmail.com', '한철수', '010-6246-7427', '2002-03-03', 'M', '서울시 동작구 흑석동', NOW(), 'ACTIVE');
 
+-- =======================================
+-- INSERT 구문 필수 컬럼만 입력
+-- 컬럼명칭 옆에 NOT NULL인 컬럼명칭만 지정하여 데이터 삽입 가능
+-- 주의 : NOT NULL을 생략 불가
 
+-- INSERT INTO 테이블이름 (필수컬럼명1, 필수컬럼명2, 필수컬럼명3,...)
+--        VALUES (데이터1, 데이터1, 데이터1,..),
+--        VALUES (데이터2, 데이터2, 데이터2,..),
+--        VALUES (데이터3, 데이터3, 데이터3,..);
 
+-- INSERT INTO 테이블이름 (필수컬럼명1, 필수컬럼명2, 필수컬럼명3,...)
+--                 VALUES (데이터3, 데이터3, 데이터3,..);
+-- ,로 구분하여 여러 행을 한번에 입력 후 데이터를 저장할 수 있다.
+-- =======================================
 
+-- =============================================
+-- 실습 문제 1: 필수 컬럼만 INSERT
+-- =============================================
+-- 문제: 다음 회원들을 필수 컬럼(username, password, email, name)만으로 INSERT하세요.
+-- 나머지 컬럼들은 기본값 또는 NULL이 됩니다.
 
+/*
+회원1: user_basic1, basicpass123, basic1@email.com, 기본유저1
+회원2: user_basic2, basicpass456, basic2@email.com, 기본유저2  
+회원3: user_basic3, basicpass789, basic3@email.com, 기본유저3
+*/
 
+INSERT INTO member (username, password, email,name)
+    VALUES ('user_basic1', 'basicpass123', 'basic1@email.com', '기본유저1'),
+    ('user_basic2', 'basicpass456', 'basic2@email.com', '기본유저2'),
+    ('user_basic3', 'basicpass789', 'basic3@email.com', '기본유저3');
 
-
-
+SELECT * FROM member;
 
 
 
