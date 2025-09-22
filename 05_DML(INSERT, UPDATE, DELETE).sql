@@ -49,6 +49,7 @@ NOW(),                 -- join_date 가입일자 현재시간 기준
 INSERT INTO member VALUES(NULL,'jane_smith', 'password456', 'jane@example.com', '김영희', '010-9876-5432', '1992-08-20', 'F', '부산시 해운대구', NOW(), 'ACTIVE');
 INSERT INTO member VALUES(NULL,'mike_wilson', 'password789', 'mike@example.com', '이철수', '010-5555-7777', '1988-12-03', 'M', '대구시 중구', NOW(), 'ACTIVE');
 INSERT INTO member VALUES(NULL,'sarah_lee', 'passwordabc', 'sarah@example.com', '박미영', '010-3333-9999', '1995-03-10', 'F', '광주시 서구', NOW(), 'INACTIVE');
+INSERT INTO member VALUES(NULL,'sarah_lee', 'abc1234', 'meyoung@example.com', '오미영', '010-4256-9999', '1998-04-10', 'F', '서울시 서초구', NOW(), 'ACTIVE');
 
 -- =======================================
 -- INSERT 구문 여러 행 한번에 입력
@@ -69,12 +70,12 @@ VALUES
 -- 컬럼명칭 옆에 NOT NULL인 컬럼명칭만 지정하여 데이터 삽입 가능
 -- 주의 : NOT NULL을 생략 불가
 
--- INSERT INTO 테이블이름 (필수컬럼명1, 필수컬럼명2, 필수컬럼명3,...)
+-- INSERT INTO 테이블이름 (필수컬럼명1, 필수컬럼명2, 필수컬럼명3,...)  두 개 이상 추가시
 --        VALUES (데이터1, 데이터1, 데이터1,..),
 --        VALUES (데이터2, 데이터2, 데이터2,..),
 --        VALUES (데이터3, 데이터3, 데이터3,..);
 
--- INSERT INTO 테이블이름 (필수컬럼명1, 필수컬럼명2, 필수컬럼명3,...)
+-- INSERT INTO 테이블이름 (필수컬럼명1, 필수컬럼명2, 필수컬럼명3,...)   하나만 추가시
 --                 VALUES (데이터3, 데이터3, 데이터3,..);
 -- ,로 구분하여 여러 행을 한번에 입력 후 데이터를 저장할 수 있다.
 -- =======================================
@@ -96,19 +97,119 @@ INSERT INTO member (username, password, email,name)
     ('user_basic2', 'basicpass456', 'basic2@email.com', '기본유저2'),
     ('user_basic3', 'basicpass789', 'basic3@email.com', '기본유저3');
 
+
+
+-- ===================================================
+-- INSERT INTO 테이블명 (컬럼명, ...) VALUES(데이터, ..)
+-- 특정 컬럼만 지정하여 데이터 저장 (필수 + 선택사항)
+-- ===================================================
+
+INSERT INTO member (username, password, email,name, phone, gender)
+            VALUES ('admin_user', 'admin_pass', 'admin@gmail.com', '관리자', '010-4689-1357','M');
+
+-- ===================================================
+-- INSERT INTO 로 데이터를 저장하는 작업을 할 때
+-- 컬럼 명칭과 넣고자 하는 데이터값이 일치하면 넣는데 문제가 없음
+-- 데이터 일치의 기준은 컬럼 명칭에 작성된 자료형, 자료형 크기가 기준
+-- ===================================================
+INSERT INTO member (password, username, email,phone, name, gender)
+            VALUES ('guest_pass1', 'guest_user1', 'guest1@gmail.com', '게스트1','010-2222-8888','F');
+INSERT INTO member (password, username, email,phone, name, gender)
+            VALUES ('guest_pass2', 'guest_user2', 'guest2@gmail.com', '010-3333-7777','게스트2','F');
+
 SELECT * FROM member;
 
+-- =============================================
+-- INSERT 실습문제
+-- =============================================
+
+-- 문제 1: 다음 회원 정보를 주어진 컬럼 순서에 맞춰 INSERT하세요.
+-- 컬럼 순서: password, username, email, name, phone, gender
+-- 회원 데이터: hong123, hong_pass, hong@naver.com, 홍길동, 010-1234-5678, M
+INSERT INTO member (password, username, email,name, phone, gender)
+            VALUES ('hong123', 'hong_pass', 'hong@naver.com', '홍길동','010-1234-5678','M');
+
+-- 문제 2: 필수 컬럼 4개를 다른 순서로 INSERT하세요.
+-- 컬럼 순서: email, name, password, username  
+-- 회원 데이터: kim_student, student123, kim@gmail.com, 김영희
+INSERT INTO member (email, name, password,username)
+            VALUES ('kim@gmail.com', '김영희', 'student123', 'kim_student');
+
+-- 문제 3: 생년월일과 성별을 포함해서 다른 순서로 INSERT하세요
+-- 컬럼 순서: birth_date, username, gender, email, name, password
+-- 회원 데이터: park_teacher, teacher456, park@daum.net, 박철수, 1985-03-15, M
+INSERT INTO member (birth_date, username, gender,email,name,password)
+            VALUES ('1985-03-15', 'park_teacher', 'M', 'park@daum.net','박철수','teacher456');
+
+-- 문제 4: 주소를 포함해서 컬럼 순서를 바꿔 INSERT하세요.
+-- 컬럼 순서: address, phone, birth_date, gender, name, email, password, username
+-- 회원 데이터: lee_manager, manager789, lee@company.co.kr, 이미영, F, 1990-07-20, 010-9876-5432, 서울시 강남구 역삼동
+INSERT INTO member (address, phone, birth_date, gender, name, email, password, username)
+            VALUES ('서울시 강남구 역삼동', '010-9876-5432', '1990-07-20', 'F','이미영','lee@company.co.kr','manager789','lee_manager');
+
+-- 문제 5: 회원 상태를 포함해서 INSERT하세요.
+-- 컬럼 순서: status, gender, username, password, email, name, phone
+-- 회원 데이터: choi_admin, admin999, choi@admin.kr, 최관리, 010-5555-7777, INACTIVE, M
+INSERT INTO member (status, gender, username, password, email, name, phone)
+            VALUES ('INACTIVE', 'M', 'choi_admin', 'admin999','choi@admin.kr','최관리','010-5555-7777');
+
+-- 문제 6: 3명의 회원을 각각 다른 컬럼 순서로 한 번에 INSERT하세요.
+-- 순서: username, password, email, name, phone, gender
+/*
+회원1: jung_user1, pass1234, jung1@kakao.com, 정수민, 010-1111-2222, F
+회원2: kang_user2, pass5678, kang2@nate.com, 강동원, 010-3333-4444, M  
+회원3: yoon_user3, pass9012, yoon3@hanmail.net, 윤서연, 010-5555-6666, F
+*/
+INSERT INTO member (username, password, email, name, phone, gender)
+            VALUES ('jung_user1', 'pass1234', 'jung1@kakao.com', '정수민', '010-1111-2222', 'F'),
+            ('kang_user2', 'pass5678', 'kang2@nate.com', '강동원', '010-3333-4444', 'M'  ),
+            ('yoon_user3', 'pass9012', 'yoon3@hanmail.net', '윤서연', '010-5555-6666', 'F');
 
 
+-- 문제 7: 다음 잘못된 INSERT문을 올바르게 수정하세요.
+-- 잘못된 예제 (실행하지 마세요.):
+-- INSERT INTO member (username, password, email, name, phone) 
+-- VALUES ('010-7777-8888', 'song_user', 'song@lycos.co.kr', 'songpass', '송지효');
+INSERT INTO member (username, password, email, name, phone)
+            VALUES ('song_user','songpass','song@lycos.co.kr','송지효','010-7777-8888');
 
+-- 문제 8: 전화번호와 주소는 제외하고 다른 순서로 INSERT하세요.
+-- 컬럼 순서: gender, birth_date, name, email, username, password
+-- 회원 데이터: oh_student, student321, oh@snu.ac.kr, 오수진, 1995-12-03, F
+INSERT INTO member (gender, birth_date, name, email, username, password)
+            VALUES ('F', '1995-12-03', '오수진', 'oh@snu.ac.kr','oh_student','student321');
 
+-- 문제 9: 모든 컬럼을 포함해서 순서를 바꿔 INSERT하세요.
+-- 컬럼 순서: address, status, gender, birth_date, phone, name, email, password, username
+-- 회원 데이터: han_ceo, ceo2024, han@bizmail.kr, 한대표, 010-8888-9999, 1975-05-25, M, ACTIVE, 부산시 해운대구 우동
+INSERT INTO member (address, status, gender, birth_date, phone, name, email, password, username)
+            VALUES ('부산시 해운대구 우동', 'ACTIVE', 'M', '1975-05-25','010-8888-9999','한대표','han@bizmail.kr','ceo2024','han_ceo');
 
+-- 문제 10: 5명의 한국 회원을 서로 다른 컬럼 순서로 INSERT하세요.
 
+/*
+회원1: 김민수, minsoo_kim, minpass1, minsoo@gmail.com, 010-1010-2020, M
+회원2: 이소영, soyoung_lee, sopass2, soyoung@naver.com, 010-3030-4040, F
+회원3: 박준혁, junhyuk_park, junpass3, junhyuk@daum.net, 010-5050-6060, M
+회원4: 최유진, yujin_choi, yujinpass4, yujin@hanmail.net, 010-7070-8080, F  
+회원5: 장태현, taehyun_jang, taepass5, taehyun@korea.kr, 010-9090-1010, M
+*/
 
-
-
-
-
+-- 회원1 순서: name, username, password, email, phone, gender
+INSERT INTO member (name, username, password, email, phone, gender)
+            VALUES ('김민수', 'minsoo_kim','minpass1', 'minsoo@gmail.com', '010-1010-2020', 'M');
+-- 회원2 순서: username, gender, email, name, password, phone  
+INSERT INTO member (username, gender, email, name, password, phone)
+            VALUES ('soyoung_lee', 'F', 'soyoung@naver.com', '이소영', 'sopass2', '010-3030-4040');
+-- 회원3 순서: email, phone, username, password, name, gender
+INSERT INTO member (email, phone, username, password, name, gender)
+            VALUES ('junhyuk@daum.net','010-5050-6060', 'junhyuk_park', 'unpass3', '박준혁',  'M');
+-- 회원4 순서: gender, name, phone, email, username, password
+INSERT INTO member (gender, name, phone, email, username, password)
+            VALUES ('F','최유진', '010-7070-8080','yujin@hanmail.net','yujin_choi', 'yujinpass4');
+-- 회원5 순서: phone, email, gender, username, password, name
+INSERT INTO member (phone, email, gender, username, password, name)
+            VALUES ('010-9090-1010','taehyun@korea.kr',  'M' ,'taehyun_jang', 'taepass5','장태현');
 
 
 
