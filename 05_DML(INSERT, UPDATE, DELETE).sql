@@ -49,3 +49,47 @@ NOW(),                 -- join_date 가입일자 현재시간 기준
 INSERT INTO member VALUES(NULL,'jane_smith', 'password456', 'jane@example.com', '김영희', '010-9876-5432', '1992-08-20', 'F', '부산시 해운대구', NOW(), 'ACTIVE');
 INSERT INTO member VALUES(NULL,'mike_wilson', 'password789', 'mike@example.com', '이철수', '010-5555-7777', '1988-12-03', 'M', '대구시 중구', NOW(), 'ACTIVE');
 INSERT INTO member VALUES(NULL,'sarah_lee', 'passwordabc', 'sarah@example.com', '박미영', '010-3333-9999', '1995-03-10', 'F', '광주시 서구', NOW(), 'INACTIVE');
+
+-- =======================================
+-- INSERT 구문 여러 행 한번에 입력
+-- INSERT INTO 테이블이름
+--        VALUES (데이터1, 데이터1, 데이터1,..),
+--        VALUES (데이터2, 데이터2, 데이터2,..),
+--        VALUES (데이터3, 데이터3, 데이터3,..);
+-- ,로 구분하여 여러 행을 한번에 입력 후 데이터를 저장할 수 있다.
+-- =======================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
