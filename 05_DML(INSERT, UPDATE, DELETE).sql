@@ -212,8 +212,37 @@ INSERT INTO member (phone, email, gender, username, password, name)
             VALUES ('010-9090-1010','taehyun@korea.kr',  'M' ,'taehyun_jang', 'taepass5','장태현');
 
 
+-- =============================================
+-- UPDATE 이미 존재하는 데이터의 값을 수정(변경)할 때 사용하는 조작 언어
+-- UPDATE 테이블명
+-- SET 컬럼명1 = 새롭게 추가할값1,
+-- SET 컬럼명2 = 새롭게 추가할값2,...
+-- WHERE 조건;
+-- 주의 : WHERE 절이 없으면 해당 테이블의 모든 데이터가 변경되므로 
+-- 가능한 WHERE 사용 필수
+-- UPDATE 는 ERROR 가 거의 일어나지 않음
+-- 왜냐하면 조건을 찾고 조건인 있든 없든 조건에 맞춰 변경하기 때문
+-- =============================================
+SELECT * FROM member;
+-- username 이 hong1234인 홍길동 회원의 핸드폰 번호를 변경
+-- WHERE 절을 이용해서 특정 회원 한명만 정확히 변경하는 게 중요
+UPDATE member
+SET phone='010-8765-4321'
+WHERE username='hong1234';
 
+-- 업데이트 성공시 1 row(s) affected Rows matched: 1  Changed: 1  Warnings: 0	
+UPDATE member
+SET email = 'hong1234@gmail.com',
+address = '인천시 남구'
+WHERE username='hong1234';
 
+-- 존재하지 않는 username이 조건이어도 에러 발생하지 않음
+-- 못찾은 상태 그대로 변경된 데이터가 0으로 조회
+-- 업데이트 실패시 0 row(s) affected Rows matched: 0  Changed: 0  Warnings: 0	
+UPDATE member 
+SET email = 'hong1234@gmail.com',
+address = '인천시 남구'
+WHERE username='hong1234sdasdgagawge';
 
 
 
