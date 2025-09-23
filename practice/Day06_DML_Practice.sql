@@ -156,7 +156,12 @@ VALUES (2, 1, 'Pending', 26000, '서울시 서초구 서초대로 456', '양념 
 UPDATE menus
 SET price = price * 1.1
 WHERE store_id =(SELECT store_id FROM stores WHERE store_name='동대문엽기떡볶이 신림점');
+-- 원상복구
+UPDATE menus
+SET price = price / 1.1
+WHERE store_id =(SELECT store_id FROM stores WHERE store_name='동대문엽기떡볶이 신림점');
 
+select * from menus;
 
 -- 문제 20
 -- 전화번호가 등록되지 않은(NULL) 모든 고객의 전화번호를 '미등록'으로 변경하시오.
@@ -166,15 +171,27 @@ WHERE phone IS NULL;
 
 -- 문제 21
 -- 'gmail.com'이 포함된 이메일을 사용하는 고객들의 주소에 '[Gmail 사용자]' 표시를 추가하시오.
+UPDATE CUSTOMERS 
+SET address = CONCAT('[Gmail 사용자] ', address) 
+WHERE email LIKE '%gmail.com%';
 
 -- 문제 22
 -- MENUS 테이블에서 설명(description)이 NULL인 메뉴들의 설명을 '설명 준비중'으로 변경하시오.
+UPDATE MENUS 
+SET description = '설명 준비중' 
+WHERE description IS NULL;
 
 -- 문제 23
 -- ORDERS 테이블에서 고객 요청사항(customer_request)이 NULL인 주문들을 '특별 요청 없음'으로 변경하시오.
+UPDATE ORDERS
+SET customer_request = '특별 요청 없음' 
+WHERE customer_request IS NULL;
 
 -- 문제 24
 -- 가격이 20000원 이상인 모든 메뉴를 인기메뉴(is_popular = TRUE)로 변경하시오.
+UPDATE MENUS 
+SET is_popular = TRUE 
+WHERE price >= 20000;
 
 -- 문제 25
 -- 'Delivered' 상태인 주문들 중 총 금액이 30000원 이상인 주문들의 상태를 'VIP_Delivered'로 변경하시오.
