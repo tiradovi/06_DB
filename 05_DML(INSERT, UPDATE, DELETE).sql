@@ -2,6 +2,11 @@
 -- 데이터에 값을 삽입하거나, 수정하거나, 삭제하는 구문
 -- COMMIT, ROLLBACK 실무에서 혼자 사용하지말 것
 
+-- 안전모드 비활성화
+SET SQL_SAFE_UPDATES = 0;
+-- 안전모드 활성화
+SET SQL_SAFE_UPDATES = 1;
+
 CREATE TABLE member (
     member_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -223,7 +228,7 @@ INSERT INTO member (phone, email, gender, username, password, name)
 -- UPDATE 는 ERROR 가 거의 일어나지 않음
 -- 왜냐하면 조건을 찾고 조건인 있든 없든 조건에 맞춰 변경하기 때문
 -- =============================================
-SELECT * FROM member;
+
 -- username 이 hong1234인 홍길동 회원의 핸드폰 번호를 변경
 -- WHERE 절을 이용해서 특정 회원 한명만 정확히 변경하는 게 중요
 UPDATE member
@@ -243,6 +248,107 @@ UPDATE member
 SET email = 'hong1234@gmail.com',
 address = '인천시 남구'
 WHERE username='hong1234sdasdgagawge';
+
+SELECT * FROM member;
+
+-- Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.  To disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect.	
+-- 1175: 안전장치
+
+UPDATE member 
+SET join_date = CURRENT_TIMESTAMP;
+
+
+
+-- 문제 1: username이 'mike_wilson'인 이철수 회원의 이메일 주소를 'mike.w@naver.com'으로 변경하세요.
+UPDATE member 
+SET email = 'mike.w@naver.com'
+WHERE username='mike_wilson';
+-- 문제 2: member_id가 5번인 회원의 상태(status)를 'SUSPENDED'로, 주소(address)를 '확인 필요'로 변경하세요.
+UPDATE member 
+SET status = 'SUSPENDED',
+address = '확인 필요'
+WHERE member_id=5;
+-- 문제 3: 1990년 이전에 태어난 모든 회원의 상태(status)를 'INACTIVE'로 변경하세요.
+UPDATE member 
+SET status = 'INACTIVE'
+WHERE birth_date< '1990-01-01';
+
+-- =============================================
+-- DELETE
+-- 테이블의 행을 삭제하는 구문
+-- [작성법]
+-- DELETE FROM 테이블명 WHERE 조건설정
+-- 만약 WHERE 조건을 설정하지 않으면 모든 행이 다 삭제됨
+
+-- DELETE 작업을 하기 전에 개발자가 수행하는 작업
+-- 가볍게 저용량의 테이블을 삭제할 경우 많이 사용
+
+-- 테스트용 테이블 생성 (기존 stores 테이블 복사)
+CREATE TABLE stores_copy AS SELECT * FROM stores;
+-- 테스트용 테이블 삭제 
+DROP TABLE stores_copy;
+-- =============================================
+USE delivery_app;
+
+
+SELECT @sql_mode; -- sql에서 아무런 설정이 되어있지 않은 상태
+
+-- Error Code: 1048. Column 'id' cannot be null
+-- member 테이블은 null이 되고 stores_copy 는 null이 안되는 이유
+-- stores_copy는 만들어진 테이블을 가볍게 복제한 상태 
+-- 기본값 설정까지는 복제하지 못함, 즉 auto INCREMENT가 복제 안된 상황
+CREATE TABLE stores_copy AS SELECT * FROM stores;
+SELECT * FROM stores_copy;
+
+INSERT INTO stores_copy
+VALUES(DEFAULT, '박말숙치킨', '치킨', '서울시 강남구 테스트로 999', '02-999-9999', '4.8','3000');
+
+-- 속성까지 모두 복제하겠다.
+CREATE TABLE stores_copy2 LIKE stores;
+INSERT INTO stores_copy2 SELECT * FROM stores;
+
+INSERT INTO stores_copy2
+VALUES(DEFAULT, '박말숙치킨', '치킨', '서울시 강남구 테스트로 999', '02-999-9999', '4.8','3000');
+
+SELECT * FROM stores_copy2;
+
+-- stores_copy2
+SELECT * FROM stores_copy2 WHERE delivery_fee >=4000;
+-- stores_copy2 테이블에서 배달비가 4000원 이상인 가게들 삭제
+DELETE FROM stores_copy2 WHERE  delivery_fee >=4000;
+
+-- stores_copy2 테이블에서 평점이 4.5미만이고 카테고리가 치킨인 가게들 삭제
+DELETE FROM stores_copy2 WHERE  rating <4.5 AND category = '치킨'; -- 0 row가 뜨면 삭제문제는 없고 삭제데이터가 없음
+
+-- stores_copy2에서 전화번호가 NULL인 매장삭제
+DELETE FROM stores_copy2 WHERE  phone IS NULL;
+
+-- stores_copy table 모두 삭제
+DROP TABLE stores_copy2;
+
+-- 속성까지 모두 복제하여 store_dev_test라는 명칭으로 테이블 복제하여 생성
+SELECT * FROM store_dev_test;
+
+CREATE TABLE store_dev_test LIKE stores;
+INSERT INTO store_dev_test SELECT * FROM stores;
+
+-- DELETE FROM store_dev_test WHERE 이용하여 IN 조건으로 1,2,3 ID들 매장 삭제
+DELETE FROM store_dev_test WHERE id IN (1,2,3);
+
+-- DELETE FROM store_dev_test WHERE 이용하여 이름에 치킨이 앞 뒤로 포함된 매장 모두 삭제
+DELETE FROM store_dev_test WHERE name LIKE '%치킨%';
+
+DROP TABLE store_dev_test;
+
+
+
+
+
+
+
+
+
+
 
 
 
