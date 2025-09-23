@@ -168,7 +168,8 @@ select * from menus;
 UPDATE CUSTOMERS
 SET phone = '미등록'
 WHERE phone IS NULL;
-
+-- ERROR 1062 : UNIQUE 는 NULL 값도 모든 컬럼에서 1개만 존재해야함
+-- 빈 칸 마저도 특별하게 고유하게 단일로 존재해야하는 데이터!
 -- 문제 21
 -- 'gmail.com'이 포함된 이메일을 사용하는 고객들의 주소에 '[Gmail 사용자]' 표시를 추가하시오.
 UPDATE CUSTOMERS 
