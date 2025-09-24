@@ -315,10 +315,14 @@ SELECT * FROM stores_copy2;
 -- stores_copy2
 SELECT * FROM stores_copy2 WHERE delivery_fee >=4000;
 -- stores_copy2 테이블에서 배달비가 4000원 이상인 가게들 삭제
-DELETE FROM stores_copy2 WHERE  delivery_fee >=4000;
+DELETE FROM stores_copy2 
+WHERE  delivery_fee >=4000;
 
 -- stores_copy2 테이블에서 평점이 4.5미만이고 카테고리가 치킨인 가게들 삭제
-DELETE FROM stores_copy2 WHERE  rating <4.5 AND category = '치킨'; -- 0 row가 뜨면 삭제문제는 없고 삭제데이터가 없음
+DELETE FROM stores_copy2 
+WHERE  rating <4.5 AND category = '치킨'; 
+
+-- 0 row가 뜨면 삭제문제는 없고 삭제데이터가 없음
 
 -- stores_copy2에서 전화번호가 NULL인 매장삭제
 DELETE FROM stores_copy2 WHERE  phone IS NULL;
@@ -333,16 +337,25 @@ CREATE TABLE store_dev_test LIKE stores;
 INSERT INTO store_dev_test SELECT * FROM stores;
 
 -- DELETE FROM store_dev_test WHERE 이용하여 IN 조건으로 1,2,3 ID들 매장 삭제
-DELETE FROM store_dev_test WHERE id IN (1,2,3);
+DELETE FROM store_dev_test 
+WHERE id IN (1,2,3);
 
 -- DELETE FROM store_dev_test WHERE 이용하여 이름에 치킨이 앞 뒤로 포함된 매장 모두 삭제
 DELETE FROM store_dev_test WHERE name LIKE '%치킨%';
 
 DROP TABLE store_dev_test;
 
+USE delivery_app;
 
-
-
+CREATE TABLE stores_copy_2 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    rating DECIMAL(2, 1),
+    delivery_fee INT
+);
 
 
 
