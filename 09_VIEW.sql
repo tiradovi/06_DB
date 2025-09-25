@@ -131,15 +131,65 @@ SELECT * FROM product_tags;
 SELECT * FROM reviews;
 
 -- 브랜드 * 카테고리를 모두 한번에 조회하는 SELECT 완성
-SELECT B.brand_name, B.brand_description, C.category_name
+SELECT B.brand_name, B.brand_description, C.category_name, C.category_id
 FROM brands B, products P, categories C 
 WHERE B.brand_id=P.brand_id
-AND P.category_id=C.category_id 
+AND P.category_id=C.category_id ;
 
 
+-- ALTER TABLE을 사용해 brands 테이블에 category_id 컬럼을 추가하고 외래 키 제약 조건을 설정
+--  category_id 컬럼은 현재 NULL 값으로 채워져 있다. 각 브랜드에 맞는 카테고리 ID를 UPDATE 문으로 지정
+ALTER TABLE brands ADD category_id INT; 
+ALTER TABLE brands ADD FOREIGN KEY(category_id) references categories(category_id);
 
+-- , 로 연결 가능
+ALTER TABLE brands ADD category_id INT, ADD FOREIGN KEY(category_id) references categories(category_id);
 
+UPDATE brands
+SET category_id = 1
+WHERE brand_name IN('애플','삼성');
 
+UPDATE brands
+SET category_id = 4
+WHERE brand_name IN('나이키','아디다스');
+
+-- 위 사례를 적용한 후, -- 브랜드 * 카테고리를 모두 한 번에 조회하는 SELECT 완성
+-- JOIN OK WHERE OK
+-- PRODUCTS CATEGORIES BRANDS   
+-- PRODUCTS BRANDS brand_id
+-- PRODUCTS CATEGORIES category_id
+
+-- 테이블간 컬럼 연결은 JOIN 형태를 쓰며, 2개 이상 JOIN 할 경우 WHERE보다 JOIN 형태가 나음
+-- OR REPLACE
+CREATE VIEW CATEGORY_BRAND AS
+SELECT b.brand_name, b.brand_description, c.category_name, c.category_id
+FROM BRANDS b, categories c
+WHERE b.category_id = c.category_id;
+
+-- 만약 JOIN 형태로 데이터 조회시 KEWORD라는 변수이름으로 html의 데이터를 db에 전달
+SELECT b.brand_name, b.brand_description, c.category_name, c.category_id
+FROM BRANDS b
+JOIN categories c ON b.category_id = c.category_id
+WHERE b.brand_description = '%keyword%'
+AND b.brand_name = '%keyword%'
+AND c.category_name = '%keyword%';
+
+-- 조회를 할 때 join 시간 줄이기, as설정 필요X
+SELECT * FROM CATEGORY_BRAND;
+
+-- 종합검색에서 and를 사용할 때 : 검색결과를 좁히고 싶을 때 사용하는 용도
+SELECT brand_name, brand_description, category_name, category_id
+FROM CATEGORY_BRAND
+WHERE brand_description = '%keyword%'
+AND brand_name = '%keyword%'
+AND category_name = '%keyword%';
+
+-- 종합검색에서 or를 사용할 때 : 검색결과를 넓히고 싶을 때 사용하는 용도
+SELECT brand_name, brand_description, category_name, category_id
+FROM CATEGORY_BRAND
+WHERE brand_description = '%keyword%'
+OR brand_name = '%keyword%'
+OR category_name = '%keyword%';
 
 
 
