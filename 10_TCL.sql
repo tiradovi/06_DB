@@ -43,6 +43,8 @@ SAVEPOINT : 트랜잭션 내에 저장 지점을 정의하며, ROLLBACK 수행 �
 복잡하고 긴 작업 중 일부만 되돌리고 싶을 때 SAVEPOINT 사용
 */
 -- ==========================================
+DROP TABLE IF EXISTS events,attendees,bookings;
+
 
 CREATE TABLE events (
     event_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -93,17 +95,40 @@ SELECT * FROM bookings;
 
 -- 박영희씨가 클래스 예약을 시도했지만 좌석이 없어서 실패한 시나리오
 -- ROLLBACK;
+
+-- CTRL + S 는 저장하기와 동시에 COMMIT 상태로 저장
 START TRANSACTION; -- COMMIT 전까지 유효 
-INSERT INTO attendees
-VALUES(2, '박영희','heepark@gmail.com');
+INSERT INTO attendees VALUES(2, '박영희','heepark@gmail.com');
+SELECT * FROM attendees;
+rollback;
 
+-- 일부만 성공 savepoint
+-- 담당자가 이민준과 최지아의 예약을 동시에 진행하지만 좌석이 1개뿐이기 때문에
+-- 이민준은 성공하고 최지아는 실패
 
+-- 이민준 예약 성공 직후 savepoint
+-- 최지아 예약 실패 시 savepoint로 되돌아가기
+START TRANSACTION; 
+INSERT INTO attendees VALUES(3, '이민준','joon@gmail.com');
 
+UPDATE events
+SET available_seats = available_seats -1
+WHERE event_id = 1;
 
+INSERT INTO bookings (event_id, attendee_id)
+VALUES(1,3);
 
+savepoint booking_joon_ok;
+INSERT INTO attendees VALUES(4, '최지아','jia@gmail.com');
 
+-- 좌석 배정 실패
+-- 중간지점으로 돌아가기
+rollback to savepoint booking_joon_ok;
 
+-- 이민준씨의 예약 완료 시점에서 최종 확정
+COMMIT;
 
+SELECT * FROM attendees;
 
 
 
