@@ -157,6 +157,10 @@ DROP TABLE BOOK;
 
 -- 방법 1번
 DROP TABLE ORDER_DETAIL;
+-- Error Code: 1051. Unknown table 'practice_db.order_daetail'	
+-- 테이블 이름 오타
+
+-- sys 삭제 금지
 
 
 
