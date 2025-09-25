@@ -143,13 +143,20 @@ ALTER TABLE department DROP COLUMN create_date;
 -- 특정 컬럼의 명칭 변경 RENAME TO
 ALTER TABLE department RENAME COLUMN dept_title TO dept_name;
 
+-- 테이블 삭제
+-- 다수의 SQL : DROP TABLE 테이블명 [CASCADE CONSTRAINTS];
+-- MYSQL      :DROP TABLE 테이블명;
+-- 외래키 활성화 비활성화 후 부모 테이블 삭제여부 결정
 
+DROP TABLE BOOK;
+-- Error Code: 3730. Cannot drop table 'book' referenced by a foreign key
+-- 외래키에 의해 참조되고 있음
+-- 방법 3가지 : 자식 -> 부모 순으로 삭제
+--              외래키 제약조건만 삭제
+--              외래키 체크 임시 비활성화를 통해 삭제
 
-
-
-
-
-
+-- 방법 1번
+DROP TABLE ORDER_DETAIL;
 
 
 

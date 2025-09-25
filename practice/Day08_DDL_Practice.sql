@@ -41,7 +41,7 @@ CREATE TABLE CUSTOMER(
 -- 7. ORDER_DETAIL 테이블 생성 (외래키 포함)
 -- 힌트: 복합키, 외래키 2개
 CREATE TABLE ORDER_DETAIL(
- ORDER_ID VARCHAR(20) PRIMARY KEY,
+    ORDER_ID VARCHAR(20) PRIMARY KEY,
     CUSTOMER_ID VARCHAR(10),
     BOOK_ID VARCHAR(10),
     QUANTITY INT,
@@ -52,7 +52,7 @@ CREATE TABLE ORDER_DETAIL(
     CONSTRAINT FK_ORDER_BOOK 
     FOREIGN KEY(BOOK_ID) REFERENCES BOOK(BOOK_ID) 
 );
-
+-- Error Code: 1824. 외래키를 참조할 테이블 미존재
 -- 8. SELECT
 -- 전체 조회
 SELECT * FROM BOOK;
@@ -97,7 +97,7 @@ CREATE TABLE ORDER_DETAIL(
     FOREIGN KEY(CUSTOMER_ID) REFERENCES CUSTOMER(CUSTOMER_ID) ON DELETE CASCADE ,
     
     CONSTRAINT FK_ORDER_BOOK 
-    FOREIGN KEY(BOOK_ID) REFERENCES BOOK(BOOK_ID) ON DELETE SET NULL
+    FOREIGN KEY(BOOK_ID) REFERENCES BOOK(BOOK_ID) ON DELETE CASCADE
 );
 
 -- 14. CASCADE 정상 작동확인
@@ -105,12 +105,16 @@ CREATE TABLE ORDER_DETAIL(
 INSERT INTO ORDER_DETAIL VALUES ('O002', 'C001', 'B002', 1);
 
 -- 테스트
+-- 정말 삭제하시겠습니까? 같은 질문 필요 
+-- ON DELETE CASCADE가 연결되지 않은 경우 기존 댓글이나 게시물 유지되나 정보를 보면 탈퇴한 회원처리
+-- 메인(부모) 테이블의 데이터가 삭제되었을 경우 자식테이블의 데이터는 NULL로 설정
 DELETE FROM BOOK WHERE BOOK_ID = 'B002';
 
 SELECT * FROM ORDER_DETAIL;
 
 -- 15. 제약조건 위반
 INSERT INTO ORDER_DETAIL VALUES ('O003', 'C999', 'B001', 1);
+-- Error Code: 1452. 참조할 데이터 미존재
 
 -- =================================================================================================
 CREATE TABLE department (
@@ -153,28 +157,49 @@ INSERT INTO product VALUES
 
 
 -- 문제 1: employee 테이블의 emp_id 컬럼을 PRIMARY KEY로 설정
+-- primary key는 둘 다 가능
 ALTER TABLE employee ADD PRIMARY KEY (emp_id);
+ALTER TABLE employee MODIFY emp_id INT PRIMARY KEY;
+-- Error Code: 1068. Multiple primary key defined 이미 기본키가 존재하는 경우 불가
+
 -- 문제 2: employee 테이블의 email 컬럼에 NOT NULL 제약조건 추가
+-- MODIFY는 자료형 반드시 입력 필요
 ALTER TABLE employee MODIFY email VARCHAR(30) NOT NULL;
+
 -- 문제 3: product 테이블의 product_name 컬럼에 NOT NULL 제약조건 추가
 ALTER TABLE product MODIFY product_name VARCHAR(50) NOT NULL;
+
 -- 문제 4: employee 테이블에 bonus 컬럼을 DECIMAL(3,2) 타입으로 추가
 ALTER TABLE employee ADD COLUMN bonus DECIMAL(3,2);
+
 -- 문제 5: product 테이블에 stock_quantity 컬럼을 INT 타입으로 추가, 기본값 0
 ALTER TABLE product ADD COLUMN stock_quantity INT DEFAULT 0;
+
 -- 문제 6: employee 테이블의 phone 컬럼을 VARCHAR(15) 타입으로 수정
 ALTER TABLE employee MODIFY phone VARCHAR(15);
+
 -- 문제 7: employee 테이블의 salary 컬럼을 BIGINT 타입으로 수정
 ALTER TABLE employee MODIFY salary BIGINT;
+
 -- 문제 8: product 테이블의 price 컬럼을 DECIMAL(10,2) 타입으로 수정
 ALTER TABLE product MODIFY price DECIMAL(10,2);
+
 -- 문제 9: employee 테이블의 emp_no 컬럼명을 social_no로 변경
 ALTER TABLE employee RENAME COLUMN emp_no TO social_no;
+
 -- 문제 10: product 테이블에서 stock_quantity 컬럼 삭제
 ALTER TABLE product DROP COLUMN stock_quantity;
+
 -- 문제 11: product 테이블의 product_id를 PRIMARY KEY로 설정
 ALTER TABLE product ADD PRIMARY KEY (product_id);
+
 -- 문제 12: category 컬럼에 CHECK 제약조건 추가
-ALTER TABLE product MODIFY category VARCHAR(20) ;
+ALTER TABLE product MODIFY category VARCHAR(20) CHECK(category IN('IT','가구'));
+
 -- 문제 13: description 컬럼을 TEXT 타입으로 추가
 ALTER TABLE product ADD description TEXT;
+
+
+
+
+
