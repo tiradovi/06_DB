@@ -167,6 +167,7 @@ FROM BRANDS b, categories c
 WHERE b.category_id = c.category_id;
 
 -- 만약 JOIN 형태로 데이터 조회시 KEWORD라는 변수이름으로 html의 데이터를 db에 전달
+CREATE OR REPLACE VIEW CATEGORY_BRAND AS
 SELECT b.brand_name, b.brand_description, c.category_name, c.category_id
 FROM BRANDS b
 JOIN categories c ON b.category_id = c.category_id

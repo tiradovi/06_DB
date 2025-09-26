@@ -133,7 +133,7 @@ ALTER TABLE department ADD COLUMN mgr_id INT;
 -- ERROR : 1054 MODIFY는 이미 존재하는 컬럼에서만 가능
 
 -- department 테이블에 create_date 컬럼을 TIMESTAMP 타입으로 기본값 CURRENT_TIMESTAMP로 추가
-ALTER TABLE department ADD create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE department ADD COLUMN create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- department 테이블에 create_date 컬럼 삭제
 -- INSERT UPDATE DELETE : 컬럼 내부 데이터만
@@ -160,10 +160,24 @@ DROP TABLE ORDER_DETAIL;
 -- Error Code: 1051. Unknown table 'practice_db.order_daetail'	
 -- 테이블 이름 오타
 
+DROP TABLE customer;
+DROP TABLE department;
+DROP TABLE employee;
+DROP TABLE product;
+
+DROP DATABASE bookstore;
+DROP DATABASE 네이버;
+DROP DATABASE 라인;
+DROP DATABASE 스노우;
+
 -- sys 삭제 금지
 
+USE TJE;
 
-
+SET foreign_key_checks =0;
+-- 내부 데이터만 삭제
+TRUNCATE table brands;
+SELECT * FROM brands;
 
 
 
