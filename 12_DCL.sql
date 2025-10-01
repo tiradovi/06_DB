@@ -33,8 +33,9 @@ GRANT SELECT ON tje.employees TO 'guest'@'localhost';
 -- 권한 회수
 REVOKE SELECT ON tje.employees FROM 'guest'@'localhost';
 
--- network_user에게  SELECT INSERT UPDATE 동시 부여
-GRANT SELECT, INSERT, UPDATE ON tje.employees TO 'network_user'@'192.168.1.%';
+-- network_user에게  SELECT INSERT UPDATE 부여
+GRANT SELECT ON tje.employees TO 'network_user'@'192.168.1.%';                 -- SELECT
+GRANT SELECT, INSERT, UPDATE ON tje.employees TO 'network_user'@'192.168.1.%'; -- INSERT, UPDATE
 -- 권한 회수
 REVOKE SELECT, INSERT, UPDATE ON tje.employees FROM 'network_user'@'192.168.1.%';
 
@@ -50,7 +51,8 @@ REVOKE SELECT, INSERT, UPDATE ON tje.* FROM 'office_user'@'192.168.1.100';
 -- 조회 수정 저장 삭제까지 모든게 가능한 유저
 GRANT ALL privileges ON *.* TO 'remote_user'@'%';
 -- 권한 회수
-REVOKE ALL privileges ON *.* FROM 'remote_user'@'%';
+
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'remote_user'@'%';
 
 -- 모든 권한을 준 후 권한 적용 안하면 GRANT로 부여한 권한이 의미가 없어짐
 FLUSH privileges;
